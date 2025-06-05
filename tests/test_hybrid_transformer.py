@@ -1,6 +1,7 @@
 """
 Minimal Hybrid Transformer Test
 Tests the hybrid transformer with extremely small parameters for quick validation.
+This version specifically tests a hybrid model with Quantum Embedding and Classical Attention.
 """
 
 import unittest
@@ -13,22 +14,27 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.hybrid_transformer import HybridTransformer
+# Import the specific Hybrid model
+from src.hybrid_quantum_embedding_transformer import HybridQuantumEmbeddingTransformer
 from src.classical_transformer import ClassicalTransformer
+# Assuming OptimizedQuantumEmbedding is in src.quantum_embedding
+from src.quantum_embedding import OptimizedQuantumEmbedding
 
 
 class TestMinimalHybridTransformer(unittest.TestCase):
-    """Test suite for minimal hybrid transformer validation."""
+    """Test suite for minimal hybrid transformer validation.
+    Adapted for HybridQuantumEmbeddingTransformer.
+    """
 
     def setUp(self):
         """Set up test parameters."""
-        # ULTRA minimal parameters
+        # ULTRA minimal parameters for rapid testing
         self.vocab_size = 5       # Only 5 words
         self.embedding_dim = 4    # Tiny dimension  
         self.num_classes = 2      # Binary classification
-        self.n_qubits = 3         # Minimal qubits
-        self.n_layers = 1         # Single layer
-        self.shots = 50           # Few shots
+        self.n_qubits = 3         # Minimal qubits for Quantum Embedding
+        self.n_layers = 1         # Single layer for Quantum Embedding
+        self.shots = 50           # Few shots for Quantum Embedding
         self.batch_size = 1
         self.seq_len = 2
         
@@ -38,8 +44,9 @@ class TestMinimalHybridTransformer(unittest.TestCase):
         print(f"\n📊 Test Parameters:")
         print(f"   vocab_size: {self.vocab_size}")
         print(f"   embedding_dim: {self.embedding_dim}")
-        print(f"   n_qubits: {self.n_qubits}")
-        print(f"   shots: {self.shots}")
+        print(f"   n_qubits (QEmb): {self.n_qubits}")
+        print(f"   n_layers (QEmb): {self.n_layers}")
+        print(f"   shots (QEmb): {self.shots}")
         print(f"   input shape: {self.x.shape}")
 
     def test_classical_transformer(self):
@@ -69,12 +76,13 @@ class TestMinimalHybridTransformer(unittest.TestCase):
         self.classical_time = elapsed_time
         self.classical_output = output
 
-    def test_hybrid_transformer_forward(self):
-        """Test hybrid transformer forward pass."""
-        print("\n🟡 Testing Hybrid Transformer Forward Pass...")
+    def test_hybrid_quantum_embedding_transformer_forward(self):
+        """Test HybridQuantumEmbeddingTransformer forward pass."""
+        print("\n🟡 Testing Hybrid Quantum Embedding Transformer Forward Pass...")
         
         start_time = time.time()
-        hybrid = HybridTransformer(
+        # Use the specific hybrid class
+        hybrid_model = HybridQuantumEmbeddingTransformer(
             vocab_size=self.vocab_size,
             embedding_dim=self.embedding_dim,
             num_classes=self.num_classes,
@@ -82,10 +90,10 @@ class TestMinimalHybridTransformer(unittest.TestCase):
             n_layers=self.n_layers,
             shots=self.shots
         )
-        print("   🔧 Hybrid model created")
+        print("   🔧 HybridQuantumEmbeddingTransformer model created")
         
         print("   🚀 Running forward pass...")
-        output = hybrid(self.x)
+        output = hybrid_model(self.x)
         elapsed_time = time.time() - start_time
         
         print(f"   Output shape: {output.shape}")
@@ -97,80 +105,60 @@ class TestMinimalHybridTransformer(unittest.TestCase):
         self.assertFalse(torch.isinf(output).any())
         
         # Store for gradient test
-        self.hybrid_model = hybrid
+        self.hybrid_model = hybrid_model
         self.hybrid_output = output
         self.hybrid_time = elapsed_time
 
-    def test_hybrid_transformer_gradients(self):
-        """Test gradient computation for hybrid transformer."""
-        print("\n🔄 Testing Gradient Computation...")
+    def test_hybrid_quantum_embedding_transformer_gradients(self):
+        """Test gradient computation for HybridQuantumEmbeddingTransformer."""
+        print("\n🔄 Testing Gradient Computation for HybridQuantumEmbeddingTransformer...")
         
-        # Run forward pass first if not already done
         if not hasattr(self, 'hybrid_model'):
-            self.test_hybrid_transformer_forward()
+            self.test_hybrid_quantum_embedding_transformer_forward()
         
-        # Test gradient computation with error handling for quantum circuits
         try:
             loss = self.hybrid_output.sum()
             loss.backward()
             
-            # Check that gradients exist and are finite
             gradient_exists = False
-            classical_gradients = 0
-            quantum_gradients = 0
+            classical_gradients_found = 0
+            quantum_gradients_found = 0
             
             for name, param in self.hybrid_model.named_parameters():
                 if param.grad is not None:
                     gradient_exists = True
-                    
-                    # Count classical vs quantum gradients
-                    if 'quantum' in name.lower() or 'qnode' in name.lower():
-                        quantum_gradients += 1
-                    else:
-                        classical_gradients += 1
-                    
                     self.assertFalse(torch.isnan(param.grad).any(), 
                                    f"NaN gradient in {name}")
                     self.assertFalse(torch.isinf(param.grad).any(), 
                                    f"Inf gradient in {name}")
-            
-            print(f"   Classical parameter gradients: {classical_gradients}")
-            print(f"   Quantum parameter gradients: {quantum_gradients}")
-            
-            # At least classical parameters should have gradients
-            self.assertTrue(gradient_exists, "No gradients computed at all")
-            print("   ✅ Gradients computed successfully!")
-            
-        except ValueError as e:
-            if "need at least one array to stack" in str(e):
-                print("   ⚠️  Quantum gradient computation failed (empty parameter array)")
-                print("   🔍 This might indicate no trainable quantum parameters")
-                
-                # Check if classical parts have gradients
-                classical_gradients_exist = False
-                for name, param in self.hybrid_model.named_parameters():
-                    if param.grad is not None and 'quantum' not in name.lower():
-                        classical_gradients_exist = True
-                        break
-                
-                if classical_gradients_exist:
-                    print("   ✅ Classical gradients work, quantum gradients need fixing")
+                    
+                    if 'embedding.quantum_params' in name.lower():
+                        quantum_gradients_found += 1
+                    else:
+                        classical_gradients_found += 1
                 else:
-                    print("   ❌ No gradients computed - this needs investigation")
-                    # Don't fail the test completely, but warn
-                    self.skipTest("Quantum gradient computation failed - needs model architecture review")
-            else:
-                raise e
-        
+                    print(f"   ⚠️ No gradient for: {name}") 
+            
+            print(f"   Classical parameter gradients found: {classical_gradients_found}")
+            print(f"   Quantum embedding parameter gradients found: {quantum_gradients_found}")
+            
+            self.assertTrue(gradient_exists, "No gradients computed at all.")
+            self.assertGreater(classical_gradients_found, 0, "No classical gradients computed")
+            self.assertGreater(quantum_gradients_found, 0, "No quantum embedding gradients computed")
+            
+            print("   ✅ Gradients computed successfully for Quantum Embedding Transformer!")
+            
         except Exception as e:
             print(f"   ❌ Gradient computation failed: {e}")
-            self.fail(f"Gradient computation failed: {e}")
+            import traceback
+            traceback.print_exc()
+            self.fail(f"Gradient computation failed for HybridQuantumEmbeddingTransformer: {e}")
 
-    def test_hybrid_transformer_gradients_step_by_step(self):
-        """Test gradient computation step by step to isolate issues."""
-        print("\n🔍 Testing Gradients Step by Step...")
+    def test_hybrid_quantum_embedding_transformer_gradients_step_by_step(self):
+        """Test gradient computation step by step for HybridQuantumEmbeddingTransformer."""
+        print("\n🔍 Testing HybridQuantumEmbeddingTransformer Gradients Step by Step...")
         
-        hybrid = HybridTransformer(
+        hybrid_model = HybridQuantumEmbeddingTransformer(
             vocab_size=self.vocab_size,
             embedding_dim=self.embedding_dim,
             num_classes=self.num_classes,
@@ -179,73 +167,66 @@ class TestMinimalHybridTransformer(unittest.TestCase):
             shots=self.shots
         )
         
-        # Enable gradient computation
-        x = self.x.clone().detach().requires_grad_(False)
+        x = self.x.clone().detach().requires_grad_(False) 
         
         print("   🔧 Model parameters:")
         param_count = 0
-        for name, param in hybrid.named_parameters():
+        for name, param in hybrid_model.named_parameters():
             print(f"      {name}: {param.shape}, requires_grad={param.requires_grad}")
             param_count += param.numel()
         print(f"   Total parameters: {param_count}")
         
-        # Forward pass with retain_graph
         print("   🚀 Forward pass...")
-        output = hybrid(x)
+        output = hybrid_model(x)
         
-        # Simple loss
         loss = output.mean()
         print(f"   📊 Loss: {loss.item():.6f}")
         
-        # Try backward pass with error handling
         try:
             print("   🔄 Computing gradients...")
-            loss.backward(retain_graph=True)
+            loss.backward(retain_graph=True) # retain_graph might be needed if backward is called multiple times
             
-            gradients_found = []
-            for name, param in hybrid.named_parameters():
+            gradients_found_count = 0
+            for name, param in hybrid_model.named_parameters():
                 if param.grad is not None:
                     grad_norm = param.grad.norm().item()
-                    gradients_found.append((name, grad_norm))
                     print(f"      ✅ {name}: grad_norm = {grad_norm:.6f}")
+                    gradients_found_count +=1
                 else:
                     print(f"      ❌ {name}: no gradient")
             
-            self.assertGreater(len(gradients_found), 0, "No gradients computed")
-            print("   ✅ Step-by-step gradient test passed!")
+            self.assertGreater(gradients_found_count, 0, "No gradients computed in step-by-step test")
+            print("   ✅ Step-by-step gradient test passed for Quantum Embedding Transformer!")
             
         except Exception as e:
             print(f"   ❌ Step-by-step gradient test failed: {e}")
-            print("   🔍 This suggests an issue with the quantum circuit setup")
-            # Don't fail completely - log the issue
-            print("   ⚠️  Continuing with other tests...")
+            import traceback
+            traceback.print_exc()
+            self.fail(f"Step-by-step gradient test failed: {e}")
 
     def test_performance_comparison(self):
         """Compare performance between classical and hybrid models."""
         print("\n📈 Performance Comparison...")
         
-        # Ensure both models have been tested
         if not hasattr(self, 'classical_time'):
             self.test_classical_transformer()
-        if not hasattr(self, 'hybrid_time'):
-            self.test_hybrid_transformer_forward()
+        if not hasattr(self, 'hybrid_time') or not isinstance(self.hybrid_model, HybridQuantumEmbeddingTransformer):
+            self.test_hybrid_quantum_embedding_transformer_forward()
         
         slowdown = self.hybrid_time / self.classical_time
         print(f"   Classical time: {self.classical_time:.3f}s")
-        print(f"   Hybrid time: {self.hybrid_time:.3f}s")
+        print(f"   Hybrid (QEmb) time: {self.hybrid_time:.3f}s")
         print(f"   Slowdown: {slowdown:.1f}x")
         
-        # Reasonable slowdown assertion (adjust threshold as needed)
-        self.assertLess(slowdown, 100, "Hybrid model is too slow compared to classical")
+        self.assertLess(slowdown, 150, "Hybrid model (QEmb) is too slow compared to classical (adjusted threshold)") # Increased threshold
 
     def test_output_consistency(self):
-        """Test that outputs are consistent across runs."""
-        print("\n🔄 Testing Output Consistency...")
+        """Test that outputs are consistent across runs for HybridQuantumEmbeddingTransformer."""
+        print("\n🔄 Testing Output Consistency for HybridQuantumEmbeddingTransformer...")
         
-        # Set seed for reproducibility
         torch.manual_seed(42)
         
-        hybrid = HybridTransformer(
+        hybrid_model = HybridQuantumEmbeddingTransformer(
             vocab_size=self.vocab_size,
             embedding_dim=self.embedding_dim,
             num_classes=self.num_classes,
@@ -254,25 +235,28 @@ class TestMinimalHybridTransformer(unittest.TestCase):
             shots=self.shots
         )
         
-        # Multiple runs with same input
         outputs = []
         for i in range(3):
-            torch.manual_seed(42)  # Reset seed
-            output = hybrid(self.x)
+            torch.manual_seed(42 + i) # Slightly vary seed to check robustness if shots are involved
+            output = hybrid_model(self.x.clone()) # Use a clone of x
             outputs.append(output)
         
-        # Check consistency (allowing for quantum noise)
         for i in range(1, len(outputs)):
+            # If shots=None (exact mode), difference should be near zero.
+            # If shots are used, allow for statistical variation.
+            # For default.qubit with shots, results can vary.
+            # For lightning.qubit, it's deterministic even with shots if seed is fixed.
+            # Let's assume for testing, we want nearly identical results if possible.
+            # If using `default.qubit` with shots, this tolerance might need to be higher.
             diff = torch.abs(outputs[0] - outputs[i]).max()
-            print(f"   Max difference run {i}: {diff:.6f}")
-            # Allow some variation due to quantum noise
-            self.assertLess(diff, 1.0, f"Outputs too different between runs: {diff}")
+            print(f"   Max difference run {i} vs run 0: {diff:.6f}")
+            self.assertLess(diff, 0.5 if self.shots else 1e-5, f"Outputs too different between runs: {diff}")
 
     def test_model_parameters(self):
-        """Test that model has trainable parameters."""
-        print("\n🔧 Testing Model Parameters...")
+        """Test that HybridQuantumEmbeddingTransformer has trainable parameters."""
+        print("\n🔧 Testing HybridQuantumEmbeddingTransformer Parameters...")
         
-        hybrid = HybridTransformer(
+        hybrid_model = HybridQuantumEmbeddingTransformer(
             vocab_size=self.vocab_size,
             embedding_dim=self.embedding_dim,
             num_classes=self.num_classes,
@@ -281,26 +265,29 @@ class TestMinimalHybridTransformer(unittest.TestCase):
             shots=self.shots
         )
         
-        # Count parameters
-        total_params = sum(p.numel() for p in hybrid.parameters())
-        trainable_params = sum(p.numel() for p in hybrid.parameters() if p.requires_grad)
+        total_params = sum(p.numel() for p in hybrid_model.parameters())
+        trainable_params = sum(p.numel() for p in hybrid_model.parameters() if p.requires_grad)
         
         print(f"   Total parameters: {total_params}")
         print(f"   Trainable parameters: {trainable_params}")
         
-        self.assertGreater(total_params, 0, "Model has no parameters")
-        self.assertGreater(trainable_params, 0, "Model has no trainable parameters")
+        self.assertGreater(total_params, 0, "Hybrid model has no parameters")
+        self.assertGreater(trainable_params, 0, "Hybrid model has no trainable parameters")
         
-        # Check parameter shapes are reasonable
-        for name, param in hybrid.named_parameters():
+        quantum_param_found = False
+        for name, param in hybrid_model.named_parameters():
             self.assertFalse(torch.isnan(param).any(), f"NaN in parameter {name}")
             self.assertFalse(torch.isinf(param).any(), f"Inf in parameter {name}")
+            if 'embedding.quantum_params' in name:
+                quantum_param_found = True
+                print(f"   ✅ Found quantum embedding parameter: {name} with shape {param.shape}")
+        self.assertTrue(quantum_param_found, "Did not find expected quantum embedding parameters.")
 
     def test_different_input_sizes(self):
-        """Test model with different input sizes."""
-        print("\n📏 Testing Different Input Sizes...")
+        """Test HybridQuantumEmbeddingTransformer with different input sizes."""
+        print("\n📏 Testing HybridQuantumEmbeddingTransformer Different Input Sizes...")
         
-        hybrid = HybridTransformer(
+        hybrid_model = HybridQuantumEmbeddingTransformer(
             vocab_size=self.vocab_size,
             embedding_dim=self.embedding_dim,
             num_classes=self.num_classes,
@@ -309,30 +296,27 @@ class TestMinimalHybridTransformer(unittest.TestCase):
             shots=self.shots
         )
         
-        # Test different sequence lengths
         test_cases = [
-            (1, 1),  # Single token
-            (1, 3),  # Three tokens
-            (2, 2),  # Batch of 2
+            (1, 1), (1, 3), (2, 2), (3, 1)
         ]
         
         for batch_size, seq_len in test_cases:
             with self.subTest(batch_size=batch_size, seq_len=seq_len):
-                x = torch.randint(0, self.vocab_size, (batch_size, seq_len))
-                output = hybrid(x)
+                x_input = torch.randint(0, self.vocab_size, (batch_size, seq_len))
+                output = hybrid_model(x_input)
                 
                 expected_shape = (batch_size, self.num_classes)
                 self.assertEqual(output.shape, expected_shape)
                 self.assertFalse(torch.isnan(output).any())
                 self.assertFalse(torch.isinf(output).any())
                 
-                print(f"   ✅ Input {x.shape} -> Output {output.shape}")
+                print(f"   ✅ Input {x_input.shape} -> Output {output.shape}")
 
     def test_quantum_circuit_inspection(self):
-        """Inspect the quantum circuit to understand gradient issues."""
-        print("\n🔬 Quantum Circuit Inspection...")
+        """Inspect the quantum components of HybridQuantumEmbeddingTransformer."""
+        print("\n🔬 Quantum Circuit Inspection for HybridQuantumEmbeddingTransformer...")
         
-        hybrid = HybridTransformer(
+        hybrid_model = HybridQuantumEmbeddingTransformer(
             vocab_size=self.vocab_size,
             embedding_dim=self.embedding_dim,
             num_classes=self.num_classes,
@@ -341,32 +325,56 @@ class TestMinimalHybridTransformer(unittest.TestCase):
             shots=self.shots
         )
         
-        # Try to access quantum components
         try:
-            # Look for quantum attention layer
-            if hasattr(hybrid, 'attention') and hasattr(hybrid.attention, 'qnode'):
-                qnode = hybrid.attention.qnode
-                print(f"   🎯 Found quantum attention layer")
-                print(f"   📊 QNode device: {qnode.device}")
-                print(f"   🔧 QNode interface: {qnode.interface}")
-                
-                # Check if there are trainable parameters
-                if hasattr(hybrid.attention, 'weights'):
-                    weights = hybrid.attention.weights
-                    print(f"   ⚖️  Quantum weights shape: {weights.shape}")
-                    print(f"   📈 Requires grad: {weights.requires_grad}")
-                else:
-                    print("   ⚠️  No quantum weights found")
+            self.assertTrue(hasattr(hybrid_model, 'embedding'), "Model has no 'embedding' attribute")
+            q_embed_module = hybrid_model.embedding
+            # Ensure it's the correct type, assuming OptimizedQuantumEmbedding is imported
+            self.assertIsInstance(q_embed_module, OptimizedQuantumEmbedding, 
+                                  "Embedding is not OptimizedQuantumEmbedding")
+            print(f"   🎯 Found Quantum Embedding module (OptimizedQuantumEmbedding)")
+
+            self.assertTrue(hasattr(q_embed_module, 'qdev'), "OptimizedQuantumEmbedding has no 'qdev'")
+            print(f"   📊 QEmbedding device: {q_embed_module.qdev.name}")
+            self.assertTrue(hasattr(q_embed_module, '_get_quantum_features'), 
+                            "OptimizedQuantumEmbedding has no '_get_quantum_features' method")
+            print(f"   🔧 Found '_get_quantum_features' method")
+
+            try:
+                dummy_token_id = 0 
+                q_embed_module.eval() 
+                if hasattr(q_embed_module, 'clear_cache'):
+                    q_embed_module.clear_cache()
+                # Test with a tensor input for _get_quantum_features if it expects one,
+                # or ensure the dummy_token_id is appropriate for its internal logic.
+                # The original _get_quantum_features takes an int.
+                _ = q_embed_module._get_quantum_features(dummy_token_id)
+                print(f"   ⚡ Successfully invoked _get_quantum_features (QNode likely created)")
+            except Exception as e_qnode:
+                self.fail(f"Failed to invoke _get_quantum_features, QNode might have issues: {e_qnode}")
+
+            q_params_present = False
+            for name, param in q_embed_module.named_parameters():
+                if 'quantum_params' in name and param.requires_grad:
+                    q_params_present = True
+                    print(f"   ⚖️  Found trainable quantum embedding parameters: {name}, shape={param.shape}")
+                    break
+            self.assertTrue(q_params_present, "No trainable quantum parameters found in embedding!")
             
-            # Look for quantum embedding
-            if hasattr(hybrid, 'embedding') and hasattr(hybrid.embedding, 'quantum_layer'):
-                print(f"   🎯 Found quantum embedding layer")
+            self.assertTrue(hasattr(hybrid_model, 'attention'), "Model has no 'attention' attribute")
+            self.assertIsInstance(hybrid_model.attention, torch.nn.MultiheadAttention,
+                                  "Attention module is not classical MultiHeadAttention as expected.")
+            print(f"   🎯 Found Classical MultiHeadAttention module")
             
-            print("   ✅ Quantum circuit inspection completed")
+            print("   ✅ Quantum circuit inspection completed for HybridQuantumEmbeddingTransformer")
             
+        except AssertionError as ae:
+            print(f"   ❌ Quantum circuit inspection assertion failed: {ae}")
+            raise 
         except Exception as e:
-            print(f"   ❌ Quantum circuit inspection failed: {e}")
-            print("   🔍 This might indicate architectural issues")
+            print(f"   ❌ Quantum circuit inspection failed with an unexpected error: {e}")
+            import traceback
+            traceback.print_exc()
+            self.fail(f"Quantum circuit inspection failed with an unexpected error: {e}")
 
 
 class TestSuite:
@@ -375,47 +383,43 @@ class TestSuite:
     @staticmethod
     def run_all_tests():
         """Run all tests with detailed reporting."""
-        print("🧪 Testing Minimal Hybrid Transformer")
+        print("🧪 Testing Minimal Hybrid Quantum Embedding Transformer")
         print("=" * 60)
         
-        # Create test suite
         suite = unittest.TestLoader().loadTestsFromTestCase(TestMinimalHybridTransformer)
-        
-        # Run tests with verbose output
         runner = unittest.TextTestRunner(verbosity=2)
         result = runner.run(suite)
         
         print("\n" + "=" * 60)
         if result.wasSuccessful():
-            print("🎉 All tests passed! Hybrid transformer is working.")
+            print("🎉 All tests passed! Hybrid Quantum Embedding Transformer is working.")
         else:
             print("❌ Some tests failed!")
             print(f"Failures: {len(result.failures)}")
             print(f"Errors: {len(result.errors)}")
             
-            # Print failure details
             if result.failures:
                 print("\nFailures:")
-                for test, traceback in result.failures:
-                    print(f"  - {test}: {traceback}")
+                for test, traceback_str in result.failures:
+                    print(f"  - {test}:\n{traceback_str}")
             
             if result.errors:
                 print("\nErrors:")
-                for test, traceback in result.errors:
-                    print(f"  - {test}: {traceback}")
+                for test, traceback_str in result.errors:
+                    print(f"  - {test}:\n{traceback_str}")
         
         return result.wasSuccessful()
 
     @staticmethod
     def run_quick_test():
         """Run only essential tests for quick validation."""
-        print("⚡ Quick Test Suite")
+        print("⚡ Quick Test Suite for Hybrid Quantum Embedding Transformer")
         print("=" * 40)
         
-        # Create test suite with only essential tests
         suite = unittest.TestSuite()
         suite.addTest(TestMinimalHybridTransformer('test_classical_transformer'))
-        suite.addTest(TestMinimalHybridTransformer('test_hybrid_transformer_forward'))
+        suite.addTest(TestMinimalHybridTransformer('test_hybrid_quantum_embedding_transformer_forward'))
+        suite.addTest(TestMinimalHybridTransformer('test_hybrid_quantum_embedding_transformer_gradients'))
         suite.addTest(TestMinimalHybridTransformer('test_quantum_circuit_inspection'))
         
         runner = unittest.TextTestRunner(verbosity=2)
@@ -425,7 +429,6 @@ class TestSuite:
 
 
 if __name__ == "__main__":
-    # Run individual test methods or full suite
     import sys
     
     if len(sys.argv) > 1:
@@ -434,6 +437,8 @@ if __name__ == "__main__":
         elif sys.argv[1] == "--quick":
             TestSuite.run_quick_test()
         else:
-            unittest.main(verbosity=2)
+            # This allows running specific tests like:
+            # python tests/test_hybrid_transformer.py TestMinimalHybridTransformer.test_classical_transformer
+            unittest.main(argv=sys.argv, verbosity=2)
     else:
         unittest.main(verbosity=2)

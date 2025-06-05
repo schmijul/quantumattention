@@ -5,3 +5,4 @@ pennylane-qiskit>=0.27.0
 numpy>=1.21.0
 matplotlib>=3.5.0
 scikit-learn>=1.1.0
+torchtext
