@@ -10,7 +10,7 @@ OVERVIEW:
 
 DATA:
 - Dataset: 20newsgroups (4 categories: atheism, graphics, medicine, religion)
-- Size: 1000 samples, 500-word vocabulary
+- Size: 1000 samples, 150-word vocabulary
 - Preprocessing: Tokenization, padding to 32 tokens, UNK/PAD handling
 
 MODELS:
@@ -21,6 +21,7 @@ MODELS:
 TRAINING:
 - Classical model: Every batch, lr=1e-3
 - Quantum model: Every 2nd batch (computational cost), lr=5e-3
+- Gradient clipping and linear warm-up for quantum parameters
 - 5 epochs, batch_size=8, CrossEntropyLoss
 - Outputs training curves and comparison plot
 
@@ -42,6 +43,7 @@ from collections import Counter
 import matplotlib.pyplot as plt
 
 from src.quantum_embedding import QuantumEmbedding, OptimizedQuantumEmbedding
+from torch.optim.lr_scheduler import LambdaLR
 
 
 class SimpleTextDataset(Dataset):
@@ -119,7 +121,7 @@ def create_dataset():
     labels = newsgroups.target[:1000]
     
     # Create vocabulary
-    vectorizer = CountVectorizer(max_features=500, stop_words='english')
+    vectorizer = CountVectorizer(max_features=150, stop_words='english')
     vectorizer.fit(texts)
     vocab = list(vectorizer.vocabulary_.keys())
     
@@ -169,6 +171,11 @@ def train_model():
     
     classical_optimizer = optim.Adam(classical_model.parameters(), lr=1e-3)
     quantum_optimizer = optim.Adam(quantum_model.parameters(), lr=5e-3)
+
+    # Linear warm-up scheduler for quantum optimizer
+    warmup_steps = 10
+    lr_lambda = lambda step: min(1.0, (step + 1) / warmup_steps)
+    quantum_scheduler = LambdaLR(quantum_optimizer, lr_lambda)
     
     # Training loop
     num_epochs = 5
@@ -197,7 +204,14 @@ def train_model():
                 quantum_output = quantum_model(data)
                 quantum_loss = criterion(quantum_output, target)
                 quantum_loss.backward()
+
+                # Gradient clipping for quantum parameters
+                torch.nn.utils.clip_grad_norm_(
+                    quantum_embedding.quantum_params, max_norm=1.0
+                )
+
                 quantum_optimizer.step()
+                quantum_scheduler.step()
                 quantum_epoch_loss += quantum_loss.item()
             
             if batch_idx % 10 == 0:
