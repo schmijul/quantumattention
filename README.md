@@ -21,9 +21,16 @@ The implementation can be found in [`src/quantum_embedding.py`](src/quantum_embe
 
 ## Training Comparison
 
-`train_quantum_embedding.py` contains a small experiment comparing a classical embedding against the quantum embedding on a text classification task. Running the script produces `training_comparison.png` which shows the loss curves for both models. At the moment the classical embedding converges faster, but the quantum version also shows clear learning behaviour.
+*   `train_compare.py`:
+    *   Conducts an experiment comparing a `ClassicalTransformer` against a `HybridQuantumEmbeddingTransformer` on a synthetic sentiment text classification task.
+    *   **Key Finding:** The `HybridQuantumEmbeddingTransformer` ultimately achieves **superior performance metrics (notably lower final training and validation loss, and comparable final validation accuracy)** compared to the classical model, when using a similar number of total parameters and identical training hyperparameters.
+    *   **Learning Dynamics:**
+        *   The classical embedding model converges more rapidly in the initial epochs.
+        *   The quantum-enhanced model, while exhibiting slower initial convergence, demonstrates robust learning behavior and surpasses the classical model's loss metrics by the end of training, achieving higher training accuracy.
+    *   **Computational Cost:** Training the hybrid quantum model is significantly slower per epoch due to the overhead of quantum circuit simulation.
+    *   **Output:** The script generates `quantum_embedding_comparison.png`, visually presenting the loss and accuracy curves for both models, illustrating these dynamics.
 
-![Training comparison](training_comparison.png)
+![Training comparison](quantum_embedding_comparison.png)
 
 ## Requirements
 
