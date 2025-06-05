@@ -5,6 +5,7 @@ from torch.utils.data import DataLoader, Dataset
 from sklearn.datasets import fetch_20newsgroups
 from sklearn.feature_extraction.text import CountVectorizer
 import matplotlib.pyplot as plt
+import sys
 
 from src.hybrid_transformer import ClassicalTransformer, HybridTransformer
 
