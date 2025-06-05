@@ -1,4 +1,38 @@
 # quantum_embedding.py
+
+
+"""
+Quantum Embedding Layer Logic
+
+CONCEPT:
+- Replaces classical lookup table with parameterized quantum circuits (PQC)
+- Each token gets unique quantum parameters that define a quantum state
+- Quantum measurements extract features for classical post-processing
+
+PROCESS:
+1. Token ID → Quantum Parameters (trainable, per-token)
+2. Parameters → Quantum Circuit → Quantum State |ψ⟩
+3. Pauli-Z measurements → Classical feature vector
+4. Linear layer → Final embedding vector
+
+QUANTUM CIRCUIT:
+- n_qubits qubits initialized to |0⟩^n
+- n_layers of RY/RZ rotations + CNOT entangling gates
+- Expectation values ⟨Z_i⟩ for each qubit as features
+
+ADVANTAGES:
+- Exponential Hilbert space (2^n_qubits dimensions)
+- Quantum interference and entanglement effects
+- Non-linear transformations through quantum gates
+
+CHALLENGES:
+- Shot noise in measurements → gradient instability
+- Barren plateaus → vanishing gradients
+- Computational cost: O(exp(n_qubits)) simulation
+- Limited expressivity with shallow circuits on NISQ devices
+"""
+
+
 import torch
 import torch.nn as nn
 import pennylane as qml
