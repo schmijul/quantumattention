@@ -199,12 +199,17 @@ class OptimizedQuantumEmbedding(nn.Module):
         quantum_features = circuit(params)
         result = torch.stack(quantum_features)
         
-        # Cache result (detach to avoid gradient issues)
-        self._quantum_cache[token_id] = result.detach()
+        # Cache result without detaching so autograd can track operations
+        self._quantum_cache[token_id] = result
         
         return result
     
     def forward(self, token_ids: torch.Tensor) -> torch.Tensor:
+        # Clear cache at the start of each forward pass so that cached
+        # tensors do not hold references to computation graphs from
+        # previous iterations.
+        self.clear_cache()
+
         batch_size, seq_len = token_ids.shape
         
         # Collect all unique token IDs for batch processing
