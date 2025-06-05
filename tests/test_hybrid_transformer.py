@@ -4,7 +4,8 @@ import torch
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
-from src.hybrid_transformer import ClassicalTransformer, HybridTransformer
+from src.classical_transformer import ClassicalTransformer
+from src.hybrid_transformer import HybridTransformer
 
 
 def test_classical_transformer_forward_shape():
