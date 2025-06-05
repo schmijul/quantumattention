@@ -7,7 +7,8 @@ from sklearn.feature_extraction.text import CountVectorizer
 import matplotlib.pyplot as plt
 import sys
 
-from src.hybrid_transformer import ClassicalTransformer, HybridTransformer
+from src.classical_transformer import ClassicalTransformer
+from src.hybrid_transformer import HybridTransformer
 
 
 class TextDataset(Dataset):
