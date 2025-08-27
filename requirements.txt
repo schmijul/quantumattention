@@ -6,3 +6,5 @@ numpy>=1.21.0
 matplotlib>=3.5.0
 scikit-learn>=1.1.0
 torchtext
+torchdata>=0.7.1
+portalocker>=2.0.0

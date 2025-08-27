@@ -158,8 +158,11 @@ class OptimizedQuantumEmbedding(nn.Module):
         self.n_layers = n_layers
         self.shots = shots
         
-        # Use lightning.qubit for faster simulation
-        self.qdev = qml.device("lightning.qubit", wires=n_qubits)
+        # Prefer lightning.qubit for speed; fall back to default.qubit if unavailable
+        try:
+            self.qdev = qml.device("lightning.qubit", wires=n_qubits)
+        except Exception:
+            self.qdev = qml.device("default.qubit", wires=n_qubits)
         
         # Quantum parameters
         self.quantum_params = nn.Parameter(
