@@ -30,15 +30,10 @@ The quantum attention implementation lives in [`src/quantum_attention.py`](src/q
 ## Training Comparison
 
 *   `train_compare.py`:
-    *   Conducts an experiment comparing a `ClassicalTransformer` against a `HybridQuantumEmbeddingTransformer` on a synthetic sentiment text classification task.
-    *   **Key Finding:** The `HybridQuantumEmbeddingTransformer` ultimately achieves **superior performance metrics (notably lower final training and validation loss, and comparable final validation accuracy)** compared to the classical model, when using a similar number of total parameters and identical training hyperparameters.
-    *   **Learning Dynamics:**
-        *   The classical embedding model converges more rapidly in the initial epochs.
-        *   The quantum-enhanced model, while exhibiting slower initial convergence, demonstrates robust learning behavior and surpasses the classical model's loss metrics by the end of training, achieving higher training accuracy.
-    *   **Computational Cost:** Training the hybrid quantum model is significantly slower per epoch due to the overhead of quantum circuit simulation.
-    *   **Output:** The script generates `quantum_embedding_comparison.png`, visually presenting the loss and accuracy curves for both models, illustrating these dynamics.
-
-![Training comparison](quantum_embedding_comparison.png)
+    *   Compares `ClassicalTransformer` vs `HybridQuantumEmbeddingTransformer` on a synthetic sentiment classification task.
+    *   Generates `quantum_embedding_comparison.png` with train/validation loss and accuracy curves.
+    *   Runtime is typically much higher for the quantum-enhanced model due to circuit simulation.
+    *   Winner depends on the exact run configuration (data seed, shots, epochs, and model size).
 
 ## Requirements
 
@@ -95,3 +90,5 @@ Results from the latest run (CPU):
 | QuantumEmbeddingTransformerLM | 2.3734 | 10.73 | 2.3569 | 10.56 |
 
 Note: `tiny` is an offline sanity benchmark intended for fast iteration, not a final quality benchmark.
+
+Consistency rule: whenever metrics are updated, plots must be regenerated from the same run and the README date/command/results must be updated together in one commit.
