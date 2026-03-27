@@ -119,15 +119,15 @@ class QuantumAttention(nn.Module):
 
 
 class HybridMultiHeadAttention(nn.Module):
-    """Wrapper module that mirrors ``nn.MultiheadAttention`` using a single
-    quantum head.
+    """Wrapper module that mirrors ``nn.MultiheadAttention`` using quantum
+    attention heads.
 
     Parameters
     ----------
     embed_dim: int
         Size of the input and output feature dimension.
     num_heads: int, optional
-        Number of attention heads. Only ``1`` is currently supported.
+        Number of attention heads.
     n_qubits: int, optional
         Number of qubits for the quantum attention head.
     shots: int, optional
@@ -139,19 +139,24 @@ class HybridMultiHeadAttention(nn.Module):
     def __init__(self, embed_dim: int, num_heads: int = 1, n_qubits: int = 6,
                  shots: int = 1000, device_name: str = "lightning.qubit") -> None:
         super().__init__()
-        if num_heads != 1:
-            raise NotImplementedError("Only a single quantum head is supported")
+        if embed_dim % num_heads != 0:
+            raise ValueError("embed_dim must be divisible by num_heads")
 
         self.embed_dim = embed_dim
         self.num_heads = num_heads
+        self.head_dim = embed_dim // num_heads
         self.q_proj = nn.Linear(embed_dim, embed_dim)
         self.k_proj = nn.Linear(embed_dim, embed_dim)
         self.v_proj = nn.Linear(embed_dim, embed_dim)
         self.out_proj = nn.Linear(embed_dim, embed_dim)
 
-        self.quantum_attn = QuantumAttention(embed_dim, n_qubits=n_qubits,
-                                             shots=shots,
-                                             device_name=device_name)
+        self.quantum_attn_heads = nn.ModuleList(
+            [
+                QuantumAttention(self.head_dim, n_qubits=n_qubits,
+                                 shots=shots, device_name=device_name)
+                for _ in range(num_heads)
+            ]
+        )
 
     def forward(self, query: torch.Tensor, key: torch.Tensor,
                 value: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
@@ -159,6 +164,26 @@ class HybridMultiHeadAttention(nn.Module):
         q = self.q_proj(query)
         k = self.k_proj(key)
         v = self.v_proj(value)
-        out, weights = self.quantum_attn(q, k, v)
+
+        seq_len, batch_size, _ = q.shape
+        q = q.reshape(seq_len, batch_size, self.num_heads, self.head_dim)
+        k = k.reshape(seq_len, batch_size, self.num_heads, self.head_dim)
+        v = v.reshape(seq_len, batch_size, self.num_heads, self.head_dim)
+
+        head_outputs = []
+        head_weights = []
+        for head_idx, head_attn in enumerate(self.quantum_attn_heads):
+            out_h, w_h = head_attn(q[:, :, head_idx, :],
+                                   k[:, :, head_idx, :],
+                                   v[:, :, head_idx, :])
+            head_outputs.append(out_h)
+            head_weights.append(w_h)
+
+        out = torch.stack(head_outputs, dim=2).reshape(seq_len, batch_size,
+                                                       self.embed_dim)
         out = self.out_proj(out)
+
+        # Return average attention weights across heads for compatibility with
+        # the existing single-head interface: (seq_len, batch_size, seq_len).
+        weights = torch.stack(head_weights, dim=0).mean(dim=0)
         return out, weights

@@ -19,6 +19,14 @@ Relevant details from the plan:
 
 The implementation can be found in [`src/quantum_embedding.py`](src/quantum_embedding.py). The file defines a basic `QuantumEmbedding` and an `OptimizedQuantumEmbedding` that caches quantum evaluations for efficiency.
 
+## Quantum Attention Layer
+
+The quantum attention implementation lives in [`src/quantum_attention.py`](src/quantum_attention.py).
+
+- `QuantumAttention`: single-head SWAP-test-based attention.
+- `HybridMultiHeadAttention`: true multi-head wrapper that splits the embedding dimension across heads, runs one quantum head per split, then merges results with an output projection.
+- Returned attention weights are averaged across heads for a stable `(seq_len, batch_size, seq_len)` interface.
+
 ## Training Comparison
 
 *   `train_compare.py`:

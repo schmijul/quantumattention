@@ -1,6 +1,7 @@
 import os
 import sys
 import torch
+import pytest
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
@@ -32,3 +33,30 @@ def test_hybrid_multihead_attention_forward_shapes():
     out, weights = mha(q, k, v)
     assert out.shape == (3, 1, 2)
     assert weights.shape == (3, 1, 3)
+
+
+def test_hybrid_multihead_attention_multiple_heads_shapes():
+    mha = HybridMultiHeadAttention(
+        embed_dim=4,
+        num_heads=2,
+        n_qubits=2,
+        shots=None,
+        device_name="default.qubit",
+    ).double()
+    q = torch.randn(3, 1, 4, dtype=torch.float64)
+    k = torch.randn(3, 1, 4, dtype=torch.float64)
+    v = torch.randn(3, 1, 4, dtype=torch.float64)
+    out, weights = mha(q, k, v)
+    assert out.shape == (3, 1, 4)
+    assert weights.shape == (3, 1, 3)
+
+
+def test_hybrid_multihead_attention_invalid_head_split():
+    with pytest.raises(ValueError):
+        HybridMultiHeadAttention(
+            embed_dim=5,
+            num_heads=2,
+            n_qubits=3,
+            shots=None,
+            device_name="default.qubit",
+        )
