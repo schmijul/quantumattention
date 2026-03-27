@@ -79,15 +79,19 @@ Last updated: **2026-03-27**
 Benchmark command:
 
 ```bash
-python train_lm_generation_compare.py --dataset tiny --epochs 2 --train_steps 80 --eval_steps 20 --vocab_max 200 --block 4
+python train_lm_generation_compare.py --dataset tiny --epochs 3 --train_steps 80 --eval_steps 20 --vocab_max 200 --block 4 --seed 42 --plot_path lm_generation_comparison.png
 ```
 
 Results from the latest run (CPU):
 
 | Model | Final Train Loss | Final Train PPL | Final Val Loss | Final Val PPL |
 | --- | ---: | ---: | ---: | ---: |
-| ClassicalTransformerLM | 1.7615 | 5.82 | 1.3648 | 3.91 |
-| QuantumEmbeddingTransformerLM | 2.3734 | 10.73 | 2.3569 | 10.56 |
+| ClassicalTransformerLM | 2.1960 | 8.99 | 2.1701 | 8.76 |
+| QuantumEmbeddingTransformerLM | 2.0771 | 7.98 | 2.0625 | 7.87 |
+
+Latest benchmark plot (same run as table above):
+
+![Latest LM benchmark plot](lm_generation_comparison.png)
 
 Note: `tiny` is an offline sanity benchmark intended for fast iteration, not a final quality benchmark.
 

@@ -18,11 +18,14 @@ Notes
 from pathlib import Path
 from typing import Iterable, List, Tuple
 import argparse
+import random
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
+import numpy as np
+import matplotlib.pyplot as plt
 
 from torchtext.data.utils import get_tokenizer
 from torchtext.vocab import build_vocab_from_iterator, Vocab
@@ -221,6 +224,8 @@ def main():
     parser.add_argument("--eval_steps", type=int, default=EVAL_STEPS_LIMIT)
     parser.add_argument("--vocab_max", type=int, default=VOCAB_MAX_SIZE)
     parser.add_argument("--block", type=int, default=BLOCK_SIZE)
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--plot_path", type=str, default="lm_generation_comparison.png")
     args = parser.parse_args()
 
     # Apply overrides
@@ -229,6 +234,9 @@ def main():
     EVAL_STEPS_LIMIT = args.eval_steps
     VOCAB_MAX_SIZE = args.vocab_max
     BLOCK_SIZE = args.block
+    torch.manual_seed(args.seed)
+    np.random.seed(args.seed)
+    random.seed(args.seed)
 
     print(f"Using device: {DEVICE}")
     print(f"Dataset: {args.dataset}")
@@ -330,6 +338,33 @@ def main():
         f"Classical - Final Val Loss: {ch['val_loss'][-1]:.4f}, PPL: {ch['val_ppl'][-1]:.2f}\n"
         f"Quantum   - Final Val Loss: {qh['val_loss'][-1]:.4f}, PPL: {qh['val_ppl'][-1]:.2f}"
     )
+
+    # Plot curves for README/reporting
+    epochs = list(range(1, len(ch["train_loss"]) + 1))
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    axes[0].plot(epochs, ch["train_loss"], marker="o", label="Classical train")
+    axes[0].plot(epochs, ch["val_loss"], marker="o", linestyle="--", label="Classical val")
+    axes[0].plot(epochs, qh["train_loss"], marker="s", label="Quantum train")
+    axes[0].plot(epochs, qh["val_loss"], marker="s", linestyle="--", label="Quantum val")
+    axes[0].set_title("Loss")
+    axes[0].set_xlabel("Epoch")
+    axes[0].set_ylabel("Cross-Entropy")
+    axes[0].legend()
+    axes[0].grid(True, alpha=0.3)
+
+    axes[1].plot(epochs, ch["train_ppl"], marker="o", label="Classical train")
+    axes[1].plot(epochs, ch["val_ppl"], marker="o", linestyle="--", label="Classical val")
+    axes[1].plot(epochs, qh["train_ppl"], marker="s", label="Quantum train")
+    axes[1].plot(epochs, qh["val_ppl"], marker="s", linestyle="--", label="Quantum val")
+    axes[1].set_title("Perplexity")
+    axes[1].set_xlabel("Epoch")
+    axes[1].set_ylabel("PPL")
+    axes[1].legend()
+    axes[1].grid(True, alpha=0.3)
+
+    fig.tight_layout()
+    plt.savefig(args.plot_path, dpi=220, bbox_inches="tight")
+    print(f"Saved plot: {args.plot_path}")
 
     # Generation
     prompt = "the meaning of life"
