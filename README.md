@@ -1,6 +1,6 @@
 # QuantumAttention
 
-This repository explores a **hybrid quantum\-classical transformer** where classical embedding and attention layers can be replaced with quantum counterparts. The overall architecture is inspired by the plan in `plan.md` and follows the flow:
+This repository explores a **hybrid quantum\-classical transformer** where classical embedding and attention layers can be replaced with quantum counterparts. The overall architecture follows this high-level flow:
 
 ```
 Input Tokens → Quantum Embedding → Classical Processing → Quantum Attention → Classical Output
@@ -10,7 +10,7 @@ Key components include a quantum embedding layer implemented with **parameterize
 
 ## Quantum Embedding Layer
 
-Relevant details from the plan:
+Key design details:
 
 - Qubits required: `n_q = ceil(log2(d_model))`
 - Angle encoding and 3\-5 layers of RY/RZ rotations with CNOT entanglement
@@ -76,3 +76,22 @@ Other dataset options:
 - `--dataset tiny` (offline fallback, fastest)
 
 CI is configured in `.github/workflows/ci.yml` and runs tests on Python 3.10 and 3.11 for pushes and pull requests.
+
+## Latest Performance Snapshot
+
+Last updated: **2026-03-27**
+
+Benchmark command:
+
+```bash
+python train_lm_generation_compare.py --dataset tiny --epochs 2 --train_steps 80 --eval_steps 20 --vocab_max 200 --block 4
+```
+
+Results from the latest run (CPU):
+
+| Model | Final Train Loss | Final Train PPL | Final Val Loss | Final Val PPL |
+| --- | ---: | ---: | ---: | ---: |
+| ClassicalTransformerLM | 1.7615 | 5.82 | 1.3648 | 3.91 |
+| QuantumEmbeddingTransformerLM | 2.3734 | 10.73 | 2.3569 | 10.56 |
+
+Note: `tiny` is an offline sanity benchmark intended for fast iteration, not a final quality benchmark.
