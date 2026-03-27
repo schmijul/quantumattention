@@ -55,3 +55,24 @@ python train_quantum_embedding.py
 ```
 
 This will train both models for a few epochs and save the comparison plot.
+
+## Reproducible Evaluation
+
+Run the full test suite:
+
+```bash
+pytest -q
+```
+
+Run language-model comparison on a real corpus:
+
+```bash
+python train_lm_generation_compare.py --dataset ptb --epochs 2
+```
+
+Other dataset options:
+
+- `--dataset wikitext2` (download on first run)
+- `--dataset tiny` (offline fallback, fastest)
+
+CI is configured in `.github/workflows/ci.yml` and runs tests on Python 3.10 and 3.11 for pushes and pull requests.
