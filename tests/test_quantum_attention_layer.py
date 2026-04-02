@@ -60,3 +60,57 @@ def test_hybrid_multihead_attention_invalid_head_split():
             shots=None,
             device_name="default.qubit",
         )
+
+
+def test_quantum_attention_respects_causal_mask():
+    attn = QuantumAttention(
+        embed_dim=2,
+        n_qubits=2,
+        shots=None,
+        device_name="default.qubit",
+        score_mode="fidelity",
+    ).double()
+    q = torch.tensor(
+        [
+            [[1.0, 0.0]],
+            [[0.0, 1.0]],
+            [[1.0, 1.0]],
+        ],
+        dtype=torch.float64,
+    )
+    v = torch.tensor(
+        [
+            [[1.0, 0.0]],
+            [[0.0, 2.0]],
+            [[3.0, 3.0]],
+        ],
+        dtype=torch.float64,
+    )
+    causal_mask = torch.tensor(
+        [
+            [False, True, True],
+            [False, False, True],
+            [False, False, False],
+        ]
+    )
+    out, weights = attn(q, q, v, attn_mask=causal_mask)
+    assert out.shape == (3, 1, 2)
+    assert torch.isclose(weights[0, 0, 1], torch.tensor(0.0, dtype=torch.float64))
+    assert torch.isclose(weights[0, 0, 2], torch.tensor(0.0, dtype=torch.float64))
+    assert torch.isclose(weights[1, 0, 2], torch.tensor(0.0, dtype=torch.float64))
+
+
+def test_quantum_attention_respects_key_padding_mask():
+    attn = QuantumAttention(
+        embed_dim=2,
+        n_qubits=2,
+        shots=None,
+        device_name="default.qubit",
+        score_mode="fidelity",
+    ).double()
+    q = torch.randn(3, 1, 2, dtype=torch.float64)
+    k = torch.randn(3, 1, 2, dtype=torch.float64)
+    v = torch.randn(3, 1, 2, dtype=torch.float64)
+    key_padding_mask = torch.tensor([[False, False, True]])
+    _, weights = attn(q, k, v, key_padding_mask=key_padding_mask)
+    assert torch.allclose(weights[:, 0, 2], torch.zeros(3, dtype=torch.float64))
