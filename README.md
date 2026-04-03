@@ -79,6 +79,12 @@ Run language-model comparison on a real corpus:
 python train_lm_generation_compare.py --dataset ptb --epochs 2
 ```
 
+Run the synthetic classification benchmark with quantum attention:
+
+```bash
+python train_quantum_attention_compare.py --epochs 10 --models classical,quantum_embedding,quantum_attention,full_quantum --score_mode fidelity
+```
+
 Useful options:
 
 - `--dataset wikitext2` (download on first run)
@@ -94,6 +100,8 @@ The LM benchmark harness records:
 - parameter counts
 - generations for each selected model
 - plot output plus JSON metrics artifacts
+
+The classification benchmark records the same style of plot and JSON metrics for the synthetic sentiment task.
 
 CI is configured in `.github/workflows/ci.yml` and runs tests on Python 3.10 and 3.11 for pushes and pull requests.
 
