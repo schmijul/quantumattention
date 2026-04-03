@@ -105,6 +105,29 @@ The classification benchmark records the same style of plot and JSON metrics for
 
 CI is configured in `.github/workflows/ci.yml` and runs tests on Python 3.10 and 3.11 for pushes and pull requests.
 
+## Latest Classification Snapshot
+
+Last updated: **2026-04-03**
+
+Benchmark command:
+
+```bash
+python3 train_quantum_attention_compare.py --epochs 3 --batch_size 8 --train_size 32 --val_size 16 --seq_len 6 --vocab_size 20 --embed_dim 8 --n_qubits 3 --n_layers 1 --shots 20 --models classical,quantum_embedding,quantum_attention,full_quantum --score_mode fidelity --plot_path quantum_attention_classification_comparison.png --metrics_path artifacts/classification_benchmark_metrics.json
+```
+
+Results from the latest run (CPU):
+
+| Model | Final Train Loss | Final Val Loss | Final Val Acc |
+| --- | ---: | ---: | ---: |
+| ClassicalTransformer | 0.7103 | 0.7132 | 0.3750 |
+| HybridQuantumEmbeddingTransformer | 0.6794 | 0.6731 | 0.6250 |
+| QuantumAttentionTransformer | 0.6683 | 0.6599 | 0.6250 |
+| QuantumEmbeddingQuantumAttentionTransformer | 0.6908 | 0.6881 | 0.6250 |
+
+Latest classification benchmark plot (same run as table above):
+
+![Latest classification benchmark plot](quantum_attention_classification_comparison.png)
+
 ## Latest Performance Snapshot
 
 Last updated: **2026-04-02**
