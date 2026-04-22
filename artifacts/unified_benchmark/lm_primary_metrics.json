@@ -1,0 +1,164 @@
+{
+  "config": {
+    "block_size": 4,
+    "dataset": "tiny",
+    "device": "cpu",
+    "embed_dim": 16,
+    "epochs": 2,
+    "eval_steps": 4,
+    "max_seq_len": 256,
+    "models": [
+      "classical",
+      "quantum_embedding",
+      "quantum_attention",
+      "full_quantum"
+    ],
+    "n_layers": 2,
+    "n_qubits": 6,
+    "num_heads": 1,
+    "plot_path": "artifacts/unified_benchmark/lm_primary_plot.png",
+    "score_mode": "fidelity",
+    "seed": 42,
+    "shots": 300,
+    "train_steps": 8,
+    "vocab_max": 200
+  },
+  "results": {
+    "ClassicalTransformerLM": {
+      "generation": "the <unk> of <unk> <bos> is a a a a a a a a a a a a a a a a a a a a a a a a a a a a",
+      "history": {
+        "avg_train_step_ms": [
+          32.786288000011155,
+          27.47382200004722
+        ],
+        "epoch_time_sec": [
+          0.0964527309999994,
+          0.0660558619999847
+        ],
+        "train_loss": [
+          2.29111557536655,
+          2.2428501976860895
+        ],
+        "train_ppl": [
+          9.88595962524414,
+          9.420143127441406
+        ],
+        "val_loss": [
+          2.2939352989196777,
+          2.2295637130737305
+        ],
+        "val_ppl": [
+          9.913875579833984,
+          9.295809745788574
+        ]
+      },
+      "parameter_counts": {
+        "frozen_parameters": 0,
+        "total_parameters": 7640,
+        "trainable_parameters": 7640
+      }
+    },
+    "QuantumAttentionTransformerLM": {
+      "generation": "the <unk> of <unk> of <pad> <pad> <pad> <pad> of of of of <pad> <pad> <pad> <pad> of of of of <pad> <pad> <pad> <pad> of of of of <pad> <pad> <pad> <pad> of",
+      "history": {
+        "avg_train_step_ms": [
+          29.33568599996761,
+          30.076223999913054
+        ],
+        "epoch_time_sec": [
+          0.06774204600014855,
+          0.0680191650001234
+        ],
+        "train_loss": [
+          2.3631962405310736,
+          2.3312146133846707
+        ],
+        "train_ppl": [
+          10.624855995178223,
+          10.290433883666992
+        ],
+        "val_loss": [
+          2.2496607303619385,
+          2.207794189453125
+        ],
+        "val_ppl": [
+          9.484517097473145,
+          9.095630645751953
+        ]
+      },
+      "parameter_counts": {
+        "frozen_parameters": 0,
+        "total_parameters": 7640,
+        "trainable_parameters": 7640
+      }
+    },
+    "QuantumEmbeddingQuantumAttentionTransformerLM": {
+      "generation": "the <unk> of <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk>",
+      "history": {
+        "avg_train_step_ms": [
+          924.5896895000669,
+          2097.7640804999282
+        ],
+        "epoch_time_sec": [
+          1.9000099299998965,
+          4.232943409999962
+        ],
+        "train_loss": [
+          1.726483080122206,
+          1.6987726026111178
+        ],
+        "train_ppl": [
+          5.620851039886475,
+          5.467232704162598
+        ],
+        "val_loss": [
+          1.6727910041809082,
+          1.6406599283218384
+        ],
+        "val_ppl": [
+          5.327014923095703,
+          5.158572673797607
+        ]
+      },
+      "parameter_counts": {
+        "frozen_parameters": 0,
+        "total_parameters": 7816,
+        "trainable_parameters": 7816
+      }
+    },
+    "QuantumEmbeddingTransformerLM": {
+      "generation": "the <unk> of <unk> the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the",
+      "history": {
+        "avg_train_step_ms": [
+          1340.473910500009,
+          726.6301710000107
+        ],
+        "epoch_time_sec": [
+          2.7065398189999996,
+          1.4739710659998764
+        ],
+        "train_loss": [
+          2.1517825656467013,
+          2.1102725002500744
+        ],
+        "train_ppl": [
+          8.600174903869629,
+          8.25048828125
+        ],
+        "val_loss": [
+          2.31056809425354,
+          2.2610881328582764
+        ],
+        "val_ppl": [
+          10.08014965057373,
+          9.593522071838379
+        ]
+      },
+      "parameter_counts": {
+        "frozen_parameters": 0,
+        "total_parameters": 7816,
+        "trainable_parameters": 7816
+      }
+    }
+  }
+}

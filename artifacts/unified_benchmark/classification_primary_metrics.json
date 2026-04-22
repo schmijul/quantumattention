@@ -1,0 +1,134 @@
+{
+  "config": {
+    "batch_size": 8,
+    "device": "cpu",
+    "embed_dim": 8,
+    "epochs": 2,
+    "models": [
+      "classical",
+      "quantum_embedding",
+      "quantum_attention",
+      "full_quantum"
+    ],
+    "n_layers": 1,
+    "n_qubits": 3,
+    "plot_path": "artifacts/unified_benchmark/classification_primary_plot.png",
+    "score_mode": "fidelity",
+    "seed": 42,
+    "seq_len": 6,
+    "shots": 20,
+    "train_size": 32,
+    "val_size": 16,
+    "vocab_size": 20
+  },
+  "results": {
+    "ClassicalTransformer": {
+      "epoch_times": [
+        0.022456273999978293,
+        0.022306567999976323
+      ],
+      "parameter_counts": {
+        "frozen_parameters": 0,
+        "total_parameters": 610,
+        "trainable_parameters": 610
+      },
+      "train_accs": [
+        0.40625,
+        0.40625
+      ],
+      "train_losses": [
+        0.7271882891654968,
+        0.7192822396755219
+      ],
+      "val_accs": [
+        0.375,
+        0.375
+      ],
+      "val_losses": [
+        0.729964405298233,
+        0.7211324870586395
+      ]
+    },
+    "HybridQuantumEmbeddingTransformer": {
+      "epoch_times": [
+        1.6946416109999518,
+        1.3028887769999073
+      ],
+      "parameter_counts": {
+        "frozen_parameters": 0,
+        "total_parameters": 602,
+        "trainable_parameters": 602
+      },
+      "train_accs": [
+        0.40625,
+        0.40625
+      ],
+      "train_losses": [
+        0.7440872639417648,
+        0.7390852570533752
+      ],
+      "val_accs": [
+        0.375,
+        0.375
+      ],
+      "val_losses": [
+        0.7520288228988647,
+        0.7443079948425293
+      ]
+    },
+    "QuantumAttentionTransformer": {
+      "epoch_times": [
+        0.04386835299987979,
+        0.04399664900006428
+      ],
+      "parameter_counts": {
+        "frozen_parameters": 0,
+        "total_parameters": 610,
+        "trainable_parameters": 610
+      },
+      "train_accs": [
+        0.40625,
+        0.40625
+      ],
+      "train_losses": [
+        0.7083046287298203,
+        0.7058167606592178
+      ],
+      "val_accs": [
+        0.375,
+        0.375
+      ],
+      "val_losses": [
+        0.7117118835449219,
+        0.7085919976234436
+      ]
+    },
+    "QuantumEmbeddingQuantumAttentionTransformer": {
+      "epoch_times": [
+        1.4728987989999496,
+        1.5451938900000641
+      ],
+      "parameter_counts": {
+        "frozen_parameters": 0,
+        "total_parameters": 602,
+        "trainable_parameters": 602
+      },
+      "train_accs": [
+        0.59375,
+        0.59375
+      ],
+      "train_losses": [
+        0.6895716786384583,
+        0.6869907975196838
+      ],
+      "val_accs": [
+        0.625,
+        0.625
+      ],
+      "val_losses": [
+        0.6860023736953735,
+        0.68277508020401
+      ]
+    }
+  }
+}
