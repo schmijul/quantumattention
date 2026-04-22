@@ -169,6 +169,8 @@ def test_build_unified_benchmark_summary_tracks_cross_task_story():
 
     assert summary["tasks"]["language_modeling"]["winner_variant"] == "quantum_embedding"
     assert summary["tasks"]["classification"]["winner_variant"] == "quantum_attention"
+    assert summary["cross_task_overview"]["winner_variant"] == "quantum_embedding"
+    assert summary["cross_task_overview"]["rows"][0]["wins"] == 1
     assert summary["quantum_attention_evidence"]["quantum_attention"]["language_modeling"]["delta_vs_classical"] == 4.0
     assert summary["quantum_attention_evidence"]["quantum_attention"]["classification"]["delta_vs_classical"] == pytest.approx(
         0.20
@@ -190,7 +192,9 @@ def test_render_unified_benchmark_markdown_contains_primary_and_score_mode_table
     markdown = render_unified_benchmark_markdown(summary)
 
     assert "# Unified Benchmark Summary" in markdown
+    assert "Cross-Task Overview" in markdown
     assert "Language Modeling" in markdown
     assert "Classification" in markdown
     assert "Quantum Attention" in markdown
     assert "Winner:" in markdown
+    assert "Overall leader:" in markdown

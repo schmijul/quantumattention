@@ -24,8 +24,8 @@
   "results": {
     "ClassicalTransformer": {
       "epoch_times": [
-        0.022456273999978293,
-        0.022306567999976323
+        0.1846120250011154,
+        0.17393645600168384
       ],
       "parameter_counts": {
         "frozen_parameters": 0,
@@ -51,8 +51,8 @@
     },
     "HybridQuantumEmbeddingTransformer": {
       "epoch_times": [
-        1.6946416109999518,
-        1.3028887769999073
+        3.2782633409988193,
+        2.8528181900001073
       ],
       "parameter_counts": {
         "frozen_parameters": 0,
@@ -78,8 +78,8 @@
     },
     "QuantumAttentionTransformer": {
       "epoch_times": [
-        0.04386835299987979,
-        0.04399664900006428
+        0.061204499999803375,
+        0.058857967998847016
       ],
       "parameter_counts": {
         "frozen_parameters": 0,
@@ -105,8 +105,8 @@
     },
     "QuantumEmbeddingQuantumAttentionTransformer": {
       "epoch_times": [
-        1.4728987989999496,
-        1.5451938900000641
+        1.6290711359997658,
+        1.5652013950002583
       ],
       "parameter_counts": {
         "frozen_parameters": 0,

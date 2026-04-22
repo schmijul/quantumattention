@@ -1,5 +1,52 @@
 {
-  "generated_at_utc": "2026-04-22T15:36:52.374208+00:00",
+  "cross_task_overview": {
+    "ranking_metric": "mean_improvement_vs_classical_pct",
+    "rows": [
+      {
+        "classification_improvement_vs_classical_pct": 66.66666666666666,
+        "classification_primary_metric": 0.625,
+        "display_name": "Full Hybrid",
+        "language_modeling_improvement_vs_classical_pct": 44.50647318664546,
+        "language_modeling_primary_metric": 5.158572673797607,
+        "mean_improvement_vs_classical_pct": 55.586569926656054,
+        "variant_key": "full_quantum",
+        "wins": 2
+      },
+      {
+        "classification_improvement_vs_classical_pct": 0.0,
+        "classification_primary_metric": 0.375,
+        "display_name": "Quantum Attention",
+        "language_modeling_improvement_vs_classical_pct": 2.153433703043582,
+        "language_modeling_primary_metric": 9.095630645751953,
+        "mean_improvement_vs_classical_pct": 1.076716851521791,
+        "variant_key": "quantum_attention",
+        "wins": 0
+      },
+      {
+        "classification_improvement_vs_classical_pct": 0.0,
+        "classification_primary_metric": 0.375,
+        "display_name": "Classical",
+        "language_modeling_improvement_vs_classical_pct": 0.0,
+        "language_modeling_primary_metric": 9.295809745788574,
+        "mean_improvement_vs_classical_pct": 0.0,
+        "variant_key": "classical",
+        "wins": 0
+      },
+      {
+        "classification_improvement_vs_classical_pct": 0.0,
+        "classification_primary_metric": 0.375,
+        "display_name": "Quantum Embedding",
+        "language_modeling_improvement_vs_classical_pct": -3.20265080924964,
+        "language_modeling_primary_metric": 9.593522071838379,
+        "mean_improvement_vs_classical_pct": -1.60132540462482,
+        "variant_key": "quantum_embedding",
+        "wins": 0
+      }
+    ],
+    "winner_display_name": "Full Hybrid",
+    "winner_variant": "full_quantum"
+  },
+  "generated_at_utc": "2026-04-22T18:36:39.117556+00:00",
   "metadata": {
     "compare_score_modes": "fidelity,swap_test",
     "models": "classical,quantum_embedding,quantum_attention,full_quantum",
@@ -48,7 +95,7 @@
               "primary_metric_improvement_pct_vs_reference": 0.0
             },
             "swap_test": {
-              "avg_epoch_time_ratio_vs_reference": 1182.890453050742,
+              "avg_epoch_time_ratio_vs_reference": 1581.5876629839445,
               "primary_metric_delta_vs_reference": 0.0,
               "primary_metric_improvement_pct_vs_reference": 0.0
             }
@@ -57,11 +104,11 @@
           "per_mode": {
             "fidelity": {
               "final_val_acc": 0.375,
-              "runtime_sec": 0.005457385999989128
+              "runtime_sec": 0.00702798899874324
             },
             "swap_test": {
               "final_val_acc": 0.375,
-              "runtime_sec": 6.455489797999917
+              "runtime_sec": 11.115380695999193
             }
           },
           "reference_mode": "fidelity",
@@ -75,7 +122,7 @@
               "primary_metric_improvement_pct_vs_reference": 0.0
             },
             "swap_test": {
-              "avg_epoch_time_ratio_vs_reference": 82.48820413314303,
+              "avg_epoch_time_ratio_vs_reference": 86.34840530031573,
               "primary_metric_delta_vs_reference": 0.0,
               "primary_metric_improvement_pct_vs_reference": 0.0
             }
@@ -84,11 +131,11 @@
           "per_mode": {
             "fidelity": {
               "final_val_acc": 0.625,
-              "runtime_sec": 0.07254574799981128
+              "runtime_sec": 0.11990395399880072
             },
             "swap_test": {
               "final_val_acc": 0.625,
-              "runtime_sec": 5.984168469999986
+              "runtime_sec": 10.353515216998858
             }
           },
           "reference_mode": "fidelity",
@@ -118,20 +165,20 @@
               "primary_metric_improvement_pct_vs_reference": 0.0
             },
             "swap_test": {
-              "avg_epoch_time_ratio_vs_reference": 580.3230158245951,
-              "primary_metric_delta_vs_reference": -0.00788116455078125,
-              "primary_metric_improvement_pct_vs_reference": 0.08664780769722756
+              "avg_epoch_time_ratio_vs_reference": 995.2281992724263,
+              "primary_metric_delta_vs_reference": -0.0016088485717773438,
+              "primary_metric_improvement_pct_vs_reference": 0.017688147578076345
             }
           },
           "display_name": "Quantum Attention",
           "per_mode": {
             "fidelity": {
               "final_val_ppl": 9.095630645751953,
-              "runtime_sec": 0.0027632239998638397
+              "runtime_sec": 0.0027648100003716536
             },
             "swap_test": {
-              "final_val_ppl": 9.087749481201172,
-              "runtime_sec": 1.603562484999884
+              "final_val_ppl": 9.094021797180176,
+              "runtime_sec": 2.751616878000277
             }
           },
           "reference_mode": "fidelity",
@@ -145,20 +192,20 @@
               "primary_metric_improvement_pct_vs_reference": 0.0
             },
             "swap_test": {
-              "avg_epoch_time_ratio_vs_reference": 112.75613654225752,
-              "primary_metric_delta_vs_reference": -0.0025544166564941406,
-              "primary_metric_improvement_pct_vs_reference": 0.04951789609302228
+              "avg_epoch_time_ratio_vs_reference": 94.91992963648418,
+              "primary_metric_delta_vs_reference": 0.0028257369995117188,
+              "primary_metric_improvement_pct_vs_reference": -0.05477749715274408
             }
           },
           "display_name": "Full Hybrid",
           "per_mode": {
             "fidelity": {
               "final_val_ppl": 5.158572673797607,
-              "runtime_sec": 0.013328761999900962
+              "runtime_sec": 0.030954837000535917
             },
             "swap_test": {
-              "final_val_ppl": 5.156018257141113,
-              "runtime_sec": 1.5028997080000863
+              "final_val_ppl": 5.161398410797119,
+              "runtime_sec": 2.9382309499997064
             }
           },
           "reference_mode": "fidelity",
@@ -205,12 +252,12 @@
       "primary_metric_label": "Final Val Acc",
       "rows": [
         {
-          "avg_epoch_time_sec": 0.02238142099997731,
+          "avg_epoch_time_sec": 0.17927424050139962,
           "best_val_acc": 0.375,
           "best_val_loss": 0.7211324870586395,
           "delta_vs_classical": 0.0,
           "display_name": "Classical",
-          "final_epoch_time_sec": 0.022306567999976323,
+          "final_epoch_time_sec": 0.17393645600168384,
           "final_train_acc": 0.40625,
           "final_train_loss": 0.7192822396755219,
           "final_val_acc": 0.375,
@@ -225,12 +272,12 @@
           "variant_key": "classical"
         },
         {
-          "avg_epoch_time_sec": 1.4987651939999296,
+          "avg_epoch_time_sec": 3.0655407654994633,
           "best_val_acc": 0.375,
           "best_val_loss": 0.7443079948425293,
           "delta_vs_classical": 0.0,
           "display_name": "Quantum Embedding",
-          "final_epoch_time_sec": 1.3028887769999073,
+          "final_epoch_time_sec": 2.8528181900001073,
           "final_train_acc": 0.40625,
           "final_train_loss": 0.7390852570533752,
           "final_val_acc": 0.375,
@@ -245,12 +292,12 @@
           "variant_key": "quantum_embedding"
         },
         {
-          "avg_epoch_time_sec": 0.043932500999972035,
+          "avg_epoch_time_sec": 0.060031233999325195,
           "best_val_acc": 0.375,
           "best_val_loss": 0.7085919976234436,
           "delta_vs_classical": 0.0,
           "display_name": "Quantum Attention",
-          "final_epoch_time_sec": 0.04399664900006428,
+          "final_epoch_time_sec": 0.058857967998847016,
           "final_train_acc": 0.40625,
           "final_train_loss": 0.7058167606592178,
           "final_val_acc": 0.375,
@@ -265,12 +312,12 @@
           "variant_key": "quantum_attention"
         },
         {
-          "avg_epoch_time_sec": 1.5090463445000069,
+          "avg_epoch_time_sec": 1.597136265500012,
           "best_val_acc": 0.625,
           "best_val_loss": 0.68277508020401,
           "delta_vs_classical": 0.25,
           "display_name": "Full Hybrid",
-          "final_epoch_time_sec": 1.5451938900000641,
+          "final_epoch_time_sec": 1.5652013950002583,
           "final_train_acc": 0.59375,
           "final_train_loss": 0.6869907975196838,
           "final_val_acc": 0.625,
@@ -321,13 +368,13 @@
       "primary_metric_label": "Final Val PPL",
       "rows": [
         {
-          "avg_epoch_time_sec": 0.08125429649999205,
-          "avg_train_step_ms": 30.130055000029188,
+          "avg_epoch_time_sec": 0.04515299100057746,
+          "avg_train_step_ms": 20.306810500642314,
           "best_val_loss": 2.2295637130737305,
           "best_val_ppl": 9.295809745788574,
           "delta_vs_classical": 0.0,
           "display_name": "Classical",
-          "final_epoch_time_sec": 0.0660558619999847,
+          "final_epoch_time_sec": 0.053742561000035494,
           "final_train_loss": 2.2428501976860895,
           "final_train_ppl": 9.420143127441406,
           "final_val_loss": 2.2295637130737305,
@@ -343,13 +390,13 @@
           "variant_key": "classical"
         },
         {
-          "avg_epoch_time_sec": 2.090255442499938,
-          "avg_train_step_ms": 1033.5520407500098,
+          "avg_epoch_time_sec": 2.196350297999743,
+          "avg_train_step_ms": 1077.7053565002461,
           "best_val_loss": 2.2610881328582764,
           "best_val_ppl": 9.593522071838379,
           "delta_vs_classical": 0.2977123260498047,
           "display_name": "Quantum Embedding",
-          "final_epoch_time_sec": 1.4739710659998764,
+          "final_epoch_time_sec": 2.386144119000164,
           "final_train_loss": 2.1102725002500744,
           "final_train_ppl": 8.25048828125,
           "final_val_loss": 2.2610881328582764,
@@ -365,13 +412,13 @@
           "variant_key": "quantum_embedding"
         },
         {
-          "avg_epoch_time_sec": 0.06788060550013597,
-          "avg_train_step_ms": 29.70595499994033,
+          "avg_epoch_time_sec": 0.07469294049951714,
+          "avg_train_step_ms": 33.00679599988143,
           "best_val_loss": 2.207794189453125,
           "best_val_ppl": 9.095630645751953,
           "delta_vs_classical": -0.2001791000366211,
           "display_name": "Quantum Attention",
-          "final_epoch_time_sec": 0.0680191650001234,
+          "final_epoch_time_sec": 0.07141703699926438,
           "final_train_loss": 2.3312146133846707,
           "final_train_ppl": 10.290433883666992,
           "final_val_loss": 2.207794189453125,
@@ -387,13 +434,13 @@
           "variant_key": "quantum_attention"
         },
         {
-          "avg_epoch_time_sec": 3.066476669999929,
-          "avg_train_step_ms": 1511.1768849999976,
+          "avg_epoch_time_sec": 2.576153013500516,
+          "avg_train_step_ms": 1263.9518170003612,
           "best_val_loss": 1.6406599283218384,
           "best_val_ppl": 5.158572673797607,
           "delta_vs_classical": -4.137237071990967,
           "display_name": "Full Hybrid",
-          "final_epoch_time_sec": 4.232943409999962,
+          "final_epoch_time_sec": 2.298356847000832,
           "final_train_loss": 1.6987726026111178,
           "final_train_ppl": 5.467232704162598,
           "final_val_loss": 1.6406599283218384,

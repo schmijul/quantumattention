@@ -117,7 +117,11 @@ The unified benchmark report writes:
 - `artifacts/unified_benchmark_summary.md`
 - `unified_benchmark_summary.png`
 
-The score-mode comparison in the unified report is controlled: it evaluates `fidelity` and `swap_test` on the **same trained quantum-attention weights** instead of retraining separate models with different backends.
+The unified report now includes:
+
+- a cross-task overview table that ranks the four variants by mean percent improvement vs the classical baseline across both tasks
+- task-specific winner tables for LM and classification
+- a controlled score-mode comparison that evaluates `fidelity` and `swap_test` on the **same trained quantum-attention weights** instead of retraining separate models with different backends
 
 CI is configured in `.github/workflows/ci.yml` and runs tests on Python 3.10 and 3.11 for pushes and pull requests.
 
@@ -140,12 +144,21 @@ Primary results from the latest run (CPU):
 | Quantum Attention | 9.10 | 0.3750 |
 | Full Hybrid | 5.16 | 0.6250 |
 
+Cross-task overview from the generated unified report:
+
+| Variant | LM vs Classical | Classification vs Classical | Task Wins | Mean Improvement vs Classical |
+| --- | ---: | ---: | ---: | ---: |
+| Full Hybrid | 44.51% | 66.67% | 2 | 55.59% |
+| Quantum Attention | 2.15% | 0.00% | 0 | 1.08% |
+| Classical | 0.00% | 0.00% | 0 | 0.00% |
+| Quantum Embedding | -3.20% | 0.00% | 0 | -1.60% |
+
 Controlled score-mode evaluation on the same trained quantum-attention weights:
 
 | Variant | LM Fidelity PPL | LM Swap-Test PPL | LM Swap/Fidelity Eval Time | Classification Fidelity Acc | Classification Swap-Test Acc | Classification Swap/Fidelity Eval Time |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Quantum Attention | 9.10 | 9.09 | 580.32x | 0.3750 | 0.3750 | 1182.89x |
-| Full Hybrid | 5.16 | 5.16 | 112.76x | 0.6250 | 0.6250 | 82.49x |
+| Quantum Attention | 9.10 | 9.09 | 995.23x | 0.3750 | 0.3750 | 1581.59x |
+| Full Hybrid | 5.16 | 5.16 | 94.92x | 0.6250 | 0.6250 | 86.35x |
 
 Latest unified benchmark plot (same run as tables above):
 
@@ -153,7 +166,7 @@ Latest unified benchmark plot (same run as tables above):
 
 Interpretation from this snapshot:
 
-- The full hybrid model is the strongest overall variant on both tasks.
+- The full hybrid model is the strongest overall variant on both tasks and is also the top-ranked cross-task model by normalized improvement vs the classical baseline.
 - Attention-only quantum attention improves the tiny LM validation perplexity over the classical baseline, but it does not improve the synthetic classification accuracy in this run.
 - `swap_test` closely matches `fidelity` on validation metrics here, but it is dramatically slower at evaluation time.
 

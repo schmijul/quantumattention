@@ -92,6 +92,10 @@ def _safe_pct(numerator: float, denominator: float) -> float:
     return (numerator / denominator) * 100.0
 
 
+def _rows_by_variant(rows: Sequence[Mapping[str, Any]]) -> Dict[str, Mapping[str, Any]]:
+    return {row["variant_key"]: row for row in rows}
+
+
 def _attach_baseline_deltas(rows: List[MutableMapping[str, Any]], task_name: str) -> None:
     spec = TASK_SPECS[task_name]
     baseline = next((row for row in rows if row["variant_key"] == "classical"), None)
@@ -267,6 +271,67 @@ def build_score_mode_comparison(
     }
 
 
+def build_cross_task_overview(
+    lm_summary: Mapping[str, Any],
+    classification_summary: Mapping[str, Any],
+) -> Dict[str, Any]:
+    lm_rows = _rows_by_variant(lm_summary["rows"])
+    classification_rows = _rows_by_variant(classification_summary["rows"])
+    shared_variants = [
+        variant
+        for variant in VARIANT_ORDER
+        if variant in lm_rows and variant in classification_rows
+    ]
+
+    rows = []
+    for variant_key in shared_variants:
+        lm_row = lm_rows[variant_key]
+        classification_row = classification_rows[variant_key]
+        wins = int(lm_summary["winner_variant"] == variant_key) + int(
+            classification_summary["winner_variant"] == variant_key
+        )
+        improvements = [
+            lm_row.get("improvement_vs_classical_pct", 0.0),
+            classification_row.get("improvement_vs_classical_pct", 0.0),
+        ]
+        mean_improvement = sum(improvements) / len(improvements)
+        rows.append(
+            {
+                "variant_key": variant_key,
+                "display_name": VARIANT_DISPLAY_NAMES[variant_key],
+                "language_modeling_primary_metric": lm_row[lm_summary["primary_metric_key"]],
+                "language_modeling_improvement_vs_classical_pct": lm_row.get(
+                    "improvement_vs_classical_pct", 0.0
+                ),
+                "classification_primary_metric": classification_row[
+                    classification_summary["primary_metric_key"]
+                ],
+                "classification_improvement_vs_classical_pct": classification_row.get(
+                    "improvement_vs_classical_pct", 0.0
+                ),
+                "wins": wins,
+                "mean_improvement_vs_classical_pct": mean_improvement,
+            }
+        )
+
+    rows = sorted(
+        rows,
+        key=lambda row: (
+            row["wins"],
+            row["mean_improvement_vs_classical_pct"],
+            -VARIANT_ORDER.index(row["variant_key"]),
+        ),
+        reverse=True,
+    )
+    winner = rows[0] if rows else None
+    return {
+        "rows": rows,
+        "winner_variant": None if winner is None else winner["variant_key"],
+        "winner_display_name": None if winner is None else winner["display_name"],
+        "ranking_metric": "mean_improvement_vs_classical_pct",
+    }
+
+
 def build_unified_benchmark_summary(
     lm_payload: Mapping[str, Any],
     classification_payload: Mapping[str, Any],
@@ -275,6 +340,7 @@ def build_unified_benchmark_summary(
 ) -> Dict[str, Any]:
     lm_summary = summarize_lm_metrics(lm_payload)
     classification_summary = summarize_classification_metrics(classification_payload)
+    cross_task_overview = build_cross_task_overview(lm_summary, classification_summary)
 
     score_mode_payloads = score_mode_payloads or {}
     score_mode_summaries: Dict[str, Any] = {}
@@ -315,6 +381,7 @@ def build_unified_benchmark_summary(
             "language_modeling": lm_summary,
             "classification": classification_summary,
         },
+        "cross_task_overview": cross_task_overview,
         "score_mode_comparisons": score_mode_summaries,
         "quantum_attention_evidence": evidence,
     }
@@ -343,6 +410,40 @@ def render_unified_benchmark_markdown(summary: Mapping[str, Any]) -> str:
         lines.append("## Run Metadata")
         for key, value in metadata.items():
             lines.append(f"- **{key}**: `{value}`")
+        lines.append("")
+
+    cross_task = summary.get("cross_task_overview", {})
+    if cross_task.get("rows"):
+        lines.append("## Cross-Task Overview")
+        lines.append(
+            "Combined ranking uses the mean percent improvement vs the classical baseline across both tasks."
+        )
+        lines.append("")
+        headers = [
+            "Variant",
+            "LM Final Val PPL",
+            "LM vs Classical",
+            "Classification Final Val Acc",
+            "Classification vs Classical",
+            "Task Wins",
+            "Mean Improvement vs Classical",
+        ]
+        rows = []
+        for row in cross_task["rows"]:
+            rows.append(
+                [
+                    row["display_name"],
+                    _format_value(row["language_modeling_primary_metric"], 2),
+                    f"{_format_value(row['language_modeling_improvement_vs_classical_pct'], 2)}%",
+                    _format_value(row["classification_primary_metric"], 4),
+                    f"{_format_value(row['classification_improvement_vs_classical_pct'], 2)}%",
+                    str(row["wins"]),
+                    f"{_format_value(row['mean_improvement_vs_classical_pct'], 2)}%",
+                ]
+            )
+        lines.append(_markdown_table(headers, rows))
+        lines.append("")
+        lines.append(f"Overall leader: **{cross_task['winner_display_name']}**")
         lines.append("")
 
     for task_name in ("language_modeling", "classification"):

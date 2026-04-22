@@ -28,12 +28,12 @@
       "generation": "the <unk> of <unk> <bos> is a a a a a a a a a a a a a a a a a a a a a a a a a a a a",
       "history": {
         "avg_train_step_ms": [
-          32.786288000011155,
-          27.47382200004722
+          15.23469850053516,
+          25.378922500749468
         ],
         "epoch_time_sec": [
-          0.0964527309999994,
-          0.0660558619999847
+          0.03656342100111942,
+          0.053742561000035494
         ],
         "train_loss": [
           2.29111557536655,
@@ -62,12 +62,12 @@
       "generation": "the <unk> of <unk> of <pad> <pad> <pad> <pad> of of of of <pad> <pad> <pad> <pad> of of of of <pad> <pad> <pad> <pad> of of of of <pad> <pad> <pad> <pad> of",
       "history": {
         "avg_train_step_ms": [
-          29.33568599996761,
-          30.076223999913054
+          34.57662449909549,
+          31.43696750066738
         ],
         "epoch_time_sec": [
-          0.06774204600014855,
-          0.0680191650001234
+          0.07796884399976989,
+          0.07141703699926438
         ],
         "train_loss": [
           2.3631962405310736,
@@ -96,12 +96,12 @@
       "generation": "the <unk> of <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk>",
       "history": {
         "avg_train_step_ms": [
-          924.5896895000669,
-          2097.7640804999282
+          1411.2503390006168,
+          1116.6532950001056
         ],
         "epoch_time_sec": [
-          1.9000099299998965,
-          4.232943409999962
+          2.8539491800001997,
+          2.298356847000832
         ],
         "train_loss": [
           1.726483080122206,
@@ -130,12 +130,12 @@
       "generation": "the <unk> of <unk> the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the",
       "history": {
         "avg_train_step_ms": [
-          1340.473910500009,
-          726.6301710000107
+          991.5967970000565,
+          1163.8139160004357
         ],
         "epoch_time_sec": [
-          2.7065398189999996,
-          1.4739710659998764
+          2.0065564769993216,
+          2.386144119000164
         ],
         "train_loss": [
           2.1517825656467013,
