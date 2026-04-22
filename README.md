@@ -85,6 +85,12 @@ Run the synthetic classification benchmark with quantum attention:
 python train_quantum_attention_compare.py --epochs 10 --models classical,quantum_embedding,quantum_attention,full_quantum --score_mode fidelity
 ```
 
+Run the unified cross-task benchmark report:
+
+```bash
+python3 train_unified_benchmark_report.py --models classical,quantum_embedding,quantum_attention,full_quantum --qa_models quantum_attention,full_quantum --primary_score_mode fidelity --compare_score_modes fidelity,swap_test --seed 42 --output_dir artifacts/unified_benchmark --summary_plot_path unified_benchmark_summary.png --summary_metrics_path artifacts/unified_benchmark_summary.json --summary_markdown_path artifacts/unified_benchmark_summary.md --lm_dataset tiny --lm_epochs 2 --lm_train_steps 8 --lm_eval_steps 4 --lm_vocab_max 200 --lm_block 4 --classification_epochs 2 --classification_batch_size 8 --classification_train_size 32 --classification_val_size 16 --classification_seq_len 6 --classification_vocab_size 20 --classification_embed_dim 8 --classification_n_qubits 3 --classification_n_layers 1 --classification_shots 20
+```
+
 Useful options:
 
 - `--dataset wikitext2` (download on first run)
@@ -103,7 +109,66 @@ The LM benchmark harness records:
 
 The classification benchmark records the same style of plot and JSON metrics for the synthetic sentiment task.
 
+The unified benchmark report writes:
+
+- `artifacts/unified_benchmark/lm_primary_metrics.json`
+- `artifacts/unified_benchmark/classification_primary_metrics.json`
+- `artifacts/unified_benchmark_summary.json`
+- `artifacts/unified_benchmark_summary.md`
+- `unified_benchmark_summary.png`
+
+The unified report now includes:
+
+- a cross-task overview table that ranks the four variants by mean percent improvement vs the classical baseline across both tasks
+- task-specific winner tables for LM and classification
+- a controlled score-mode comparison that evaluates `fidelity` and `swap_test` on the **same trained quantum-attention weights** instead of retraining separate models with different backends
+
 CI is configured in `.github/workflows/ci.yml` and runs tests on Python 3.10 and 3.11 for pushes and pull requests.
+
+## Unified Benchmark Snapshot
+
+Last updated: **2026-04-22**
+
+Benchmark command:
+
+```bash
+python3 train_unified_benchmark_report.py --models classical,quantum_embedding,quantum_attention,full_quantum --qa_models quantum_attention,full_quantum --primary_score_mode fidelity --compare_score_modes fidelity,swap_test --seed 42 --output_dir artifacts/unified_benchmark --summary_plot_path unified_benchmark_summary.png --summary_metrics_path artifacts/unified_benchmark_summary.json --summary_markdown_path artifacts/unified_benchmark_summary.md --lm_dataset tiny --lm_epochs 2 --lm_train_steps 8 --lm_eval_steps 4 --lm_vocab_max 200 --lm_block 4 --classification_epochs 2 --classification_batch_size 8 --classification_train_size 32 --classification_val_size 16 --classification_seq_len 6 --classification_vocab_size 20 --classification_embed_dim 8 --classification_n_qubits 3 --classification_n_layers 1 --classification_shots 20
+```
+
+Primary results from the latest run (CPU):
+
+| Variant | LM Final Val PPL | Classification Final Val Acc |
+| --- | ---: | ---: |
+| Classical | 9.30 | 0.3750 |
+| Quantum Embedding | 9.59 | 0.3750 |
+| Quantum Attention | 9.10 | 0.3750 |
+| Full Hybrid | 5.16 | 0.6250 |
+
+Cross-task overview from the generated unified report:
+
+| Variant | LM vs Classical | Classification vs Classical | Task Wins | Mean Improvement vs Classical |
+| --- | ---: | ---: | ---: | ---: |
+| Full Hybrid | 44.51% | 66.67% | 2 | 55.59% |
+| Quantum Attention | 2.15% | 0.00% | 0 | 1.08% |
+| Classical | 0.00% | 0.00% | 0 | 0.00% |
+| Quantum Embedding | -3.20% | 0.00% | 0 | -1.60% |
+
+Controlled score-mode evaluation on the same trained quantum-attention weights:
+
+| Variant | LM Fidelity PPL | LM Swap-Test PPL | LM Swap/Fidelity Eval Time | Classification Fidelity Acc | Classification Swap-Test Acc | Classification Swap/Fidelity Eval Time |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Quantum Attention | 9.10 | 9.09 | 995.23x | 0.3750 | 0.3750 | 1581.59x |
+| Full Hybrid | 5.16 | 5.16 | 94.92x | 0.6250 | 0.6250 | 86.35x |
+
+Latest unified benchmark plot (same run as tables above):
+
+![Latest unified benchmark plot](unified_benchmark_summary.png)
+
+Interpretation from this snapshot:
+
+- The full hybrid model is the strongest overall variant on both tasks and is also the top-ranked cross-task model by normalized improvement vs the classical baseline.
+- Attention-only quantum attention improves the tiny LM validation perplexity over the classical baseline, but it does not improve the synthetic classification accuracy in this run.
+- `swap_test` closely matches `fidelity` on validation metrics here, but it is dramatically slower at evaluation time.
 
 ## Latest Classification Snapshot
 
